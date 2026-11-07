@@ -1,0 +1,32 @@
+{
+  "engine": "REA_Reverse_Engineer_Anything",
+  "status": "STRUCTURE_RECONSTRUCTED",
+  "analyzed_files": 8,
+  "manifest": {
+    "Final_Report_Quantum_Drug_Discovery (1).pdf": {
+      "bytes": 5206
+    },
+    "Quantum-Drug-Discovery-for-Malaria-and-TB.pptx": {
+      "bytes": 2221312
+    },
+    "Quantum_Drug_Discovery_Proposal.pdf": {
+      "bytes": 4004
+    },
+    "youtube link": {
+      "bytes": 50
+    },
+    "scripts\\rea_inspector.py": {
+      "bytes": 1485
+    },
+    "scripts\\rsi_engine.py": {
+      "bytes": 2039
+    },
+    "tests\\reality_check_harness.py": {
+      "bytes": 1250
+    },
+    ".github\\workflows\\qmoosa-rsi-rea-sync.yml": {
+      "bytes": 531
+    }
+  },
+  "timestamp": 1794028188
+}
