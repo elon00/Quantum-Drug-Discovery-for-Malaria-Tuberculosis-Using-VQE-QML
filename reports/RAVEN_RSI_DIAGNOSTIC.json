@@ -1,17 +1,6 @@
 {
-  "engine": "Raven_RSI_Autonomic_Controller",
-  "lifecycle": "OBSERVE_AND_BENCHMARK",
-  "telemetry": {
-    "timestamp": 1794028189,
-    "source_file_count": 0,
-    "test_file_count": 1,
-    "git_commit": "LOCAL_UNCOMMITTED"
-  },
-  "diagnostic": {
-    "status": "ATTENTION_REQUIRED",
-    "findings": [
-      "NO_SOURCE_FILES_FOUND"
-    ]
-  },
+  "engine": "Raven_RSI",
+  "timestamp": 1794247440,
+  "status": "OBSERVED",
   "mainnet_gate": "LOCKED"
 }
