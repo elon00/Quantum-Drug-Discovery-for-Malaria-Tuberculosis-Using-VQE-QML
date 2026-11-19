@@ -1,0 +1,27 @@
+name: Testnet & Mainnet Reality Gate Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Target network"
+        required: true
+        type: choice
+        options: [testnet, mainnet]
+        default: testnet
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.network }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify QuickNode & Network Config
+        env:
+          QUICKNODE_RPC_URL: ${{ secrets.QUICKNODE_RPC_URL }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        run: |
+          if [ -z "$QUICKNODE_RPC_URL" ]; then
+            echo "::warning::QUICKNODE_RPC_URL secret not configured for ${{ inputs.network }}."
+          fi
+          echo "Ready for ${{ inputs.network }} deployment under environment protection."
