@@ -1,0 +1,85 @@
+name: QMOOSA CodeQL & Reality Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Target verification environment"
+        required: true
+        type: choice
+        options: [ci, testnet, staging]
+        default: ci
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  secret-and-hygiene:
+    name: Secret Scan & Env Hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Block committed .env or .secrets
+        run: |
+          if [ -f ".env" ] || [ -d ".secrets" ]; then
+            echo "::error::Sensitive .env or .secrets/ committed."
+            exit 1
+          fi
+
+  codeql-security:
+    name: CodeQL Static Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript-typescript", "python"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+
+  smoke-sanity-regression:
+    name: Smoke, Sanity & Regression Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+        with:
+          python-version: "3.11"
+      - name: Python Tests
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest ruff
+          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+          ruff check .
+          pytest -q
+      - uses: actions/setup-node@v4
+        if: ${{ hashFiles('package.json') != '' }}
+        with:
+          node-version: "20"
+      - name: Node / Web3 Tests
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          npm ci
+          npm test
+      - uses: dtolnay/rust-toolchain@stable
+        if: ${{ hashFiles('Cargo.toml', 'program/Cargo.toml') != '' }}
+      - name: Rust / Solana Tests
+        if: ${{ hashFiles('Cargo.toml', 'program/Cargo.toml') != '' }}
+        run: |
+          if [ -f "Cargo.toml" ]; then cargo test; fi
+          if [ -f "program/Cargo.toml" ]; then cargo test --manifest-path program/Cargo.toml; fi
