@@ -1,0 +1,23 @@
+name: Lean 4 Formal Verification
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  verify-proofs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Elan & Lean 4
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean_verify
+
+      - name: Build & Verify All Theorems
+        working-directory: lean_verify
+        run: lake build
